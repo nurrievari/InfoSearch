@@ -17,6 +17,15 @@ analyzer = pymorphy2.MorphAnalyzer()
 lemmas = {}
 inverted_index = {}
 
+def write_tokens_and_lemmas_to_file(doc_num, doc_tokens, doc_lemmas):
+    doc_tokens_file = open('tokens/{}.txt'.format(doc_num), 'w')
+    doc_tokens_file.write(' '.join(doc_tokens))
+    doc_tokens_file.close()
+    
+    doc_lemmas_file = open('lemmas/{}.txt'.format(doc_num), 'w')
+    doc_lemmas_file.write(' '.join(doc_lemmas))
+    doc_lemmas_file.close()
+
 # Обрабатываем весь текст из страниц
 for html_page in os.listdir('pages/'):
     if not html_page.endswith("html"):
@@ -27,13 +36,17 @@ for html_page in os.listdir('pages/'):
     text = parser.get_text()
     tokens = word_tokenize(text)
     # Обрабатываем и фильтруем токены
+    
+    doc_tokens = set()
+    doc_lemmas = set()
     for token in tokens:
         preapared = prepare_token(token) 
         if preapared == '': continue
         if preapared in stop_words: continue
-        uniq_filtered_tokens.add(preapared)
+        doc_tokens.add(preapared)
         
         normal_form = analyzer.parse(token)[0].normal_form
+        doc_lemmas.add(normal_form)
         if normal_form not in lemmas:
             lemmas[normal_form] = set()
         lemmas[normal_form].add(token)
@@ -41,6 +54,9 @@ for html_page in os.listdir('pages/'):
         if normal_form not in inverted_index:
             inverted_index[normal_form] = set()
         inverted_index[normal_form].add(doc_num)
+        
+    write_tokens_and_lemmas_to_file(doc_num, doc_tokens, doc_lemmas)
+    uniq_filtered_tokens.update(doc_tokens)
 
 # Записываем токены в файл и извлекаем леммы
 tokens_file = open('tokens.txt', 'w')
