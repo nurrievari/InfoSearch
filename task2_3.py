@@ -1,12 +1,14 @@
-import os, pymorphy2, string
+import os, pymorphy2, string, re
 
 from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 
+russian_pattern = re.compile('[а-я]')
 # Функция очистки текста
 def prepare_token(token):
-    if (token in string.punctuation):
+    token = token.lower()
+    if token in string.punctuation or not russian_pattern.match(token):
         return ''
     return ''.join([i for i in token if not i.isdigit()])\
     .lower().strip()

@@ -95,7 +95,18 @@ def calc_lemmas():
 
         write_lemma_tf_idf(doc_number, tf_idf_list)
         
+def write_all_lemmas_idf():
+    total_lemmas = set()
+    for lemmas in doc_lemmas:
+        total_lemmas.update(doc_lemmas[lemmas])
+    lemmas_docs_arr = [i[1] for i in doc_lemmas.items()]
+    
+    file = open('lemmas_idf.txt', 'w')
+    for word in total_lemmas:
+        idf = math.log10(len(lemmas_docs_arr) / sum([1.0 for i in lemmas_docs_arr if word in i]))
+        file.write('{} {}\n'.format(word, idf))
+    
         
-        
-calc_tokens()
-calc_lemmas()
+# calc_tokens()
+# calc_lemmas()
+write_all_lemmas_idf()
